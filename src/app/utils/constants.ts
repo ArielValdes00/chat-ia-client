@@ -1,0 +1,1 @@
+export const ERROR_MESSAGE = "I can't do that now. Try again later.";

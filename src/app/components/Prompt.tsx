@@ -1,13 +1,33 @@
-import { Button, Input } from '@nextui-org/react'
-import React from 'react'
-import ArrowUpIcon from '../icons/ArrowUpIcon'
-import AttachIcon from '../icons/AttachIcon'
+import { Button, Input } from '@nextui-org/react';
+import React, { useState } from 'react';
+import ArrowUpIcon from '../icons/ArrowUpIcon';
+import AttachIcon from '../icons/AttachIcon';
 
 interface PromptProps {
-    isLogged: boolean
+    isLogged: boolean;
+    onSendMessage: (message: string) => void; 
 }
 
-const Prompt: React.FC<PromptProps> = ({ isLogged }) => {
+const Prompt: React.FC<PromptProps> = ({ isLogged, onSendMessage }) => {
+    const [message, setMessage] = useState(''); 
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setMessage(e.target.value);
+    };
+
+    const handleSend = () => {
+        if (message.trim()) {
+            onSendMessage(message);
+            setMessage('');
+        }
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            handleSend();
+        }
+    };
+
     return (
         <Input
             fullWidth={true}
@@ -16,9 +36,12 @@ const Prompt: React.FC<PromptProps> = ({ isLogged }) => {
             className='rounded-full placeholder:text-sm'
             variant={isLogged ? 'flat' : 'bordered'}
             placeholder='Envía un mensaje a Gemini'
+            value={message}
+            onChange={handleChange}
+            onKeyPress={handleKeyPress}
             startContent={isLogged && <AttachIcon />}
             endContent={
-                <Button isIconOnly size='sm' color="primary" aria-label="Send" radius={isLogged ? 'full' : 'lg'}>
+                <Button isIconOnly size='sm' color="primary" aria-label="Send" radius={isLogged ? 'full' : 'lg'} onClick={handleSend}>
                     <ArrowUpIcon />
                 </Button>
             }
@@ -33,7 +56,7 @@ const Prompt: React.FC<PromptProps> = ({ isLogged }) => {
                 ]
             }}
         />
-    )
-}
+    );
+};
 
-export default Prompt
+export default Prompt;
