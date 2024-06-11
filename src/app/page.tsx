@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { motion } from 'framer-motion';
 import { useEffect, useState } from "react";
 import Chatbox from "./components/Chatbox";
@@ -28,6 +28,9 @@ export default function Home() {
     const [loading, setLoading] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isAuthChecked, setIsAuthChecked] = useState(false);
+    const [selectedChat, setSelectedChat] = useState<any>(null);
+    const [chats, setChats] = useState<any[]>([]);
+    const [messages, setMessages] = useState<any>([]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -57,24 +60,49 @@ export default function Home() {
             }
             setIsAuthChecked(true);
             setLoading(false);
-        }
+        };
         getUserById();
     }, []);
 
+    const toggleSidebar = () => {
+        setIsSidebarOpen(prevState => !prevState);
+    };
+
     return (
-        <main className="h-screen flex sm:px-0">
+        <main className="h-screen flex sm:px-0 relative">
             {loading && <Loading />}
             {!loading && isAuthChecked && !isLogged && <ModalInit />}
             {!loading && isAuthChecked && (
                 <>
                     <motion.aside
-                        className={`sidebar ${!isSidebarOpen && 'hidden'}`}
+                        className={`sidebar ${isSidebarOpen ? 'block' : 'hidden'} lg:block bg-gray-100 lg:static absolute z-20 h-full`}
                         variants={sidebarVariants}
                         animate={isSidebarOpen ? 'open' : 'closed'}
                     >
-                        <Sidebar isLogged={isLogged} setIsLogged={setIsLogged} />
+                        <Sidebar
+                            isLogged={isLogged}
+                            setIsLogged={setIsLogged}
+                            userData={userData}
+                            setSelectedChat={setSelectedChat}
+                            chats={chats}
+                            setChats={setChats}
+                            setMessages={setMessages}
+                        />
                     </motion.aside>
-                    <Chatbox isLogged={isLogged} userData={userData} />
+                    {isSidebarOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden" onClick={toggleSidebar}></div>}
+                    <div className="flex-1">
+                        <Chatbox
+                            isLogged={isLogged}
+                            userData={userData}
+                            selectedChat={selectedChat}
+                            setSelectedChat={setSelectedChat}
+                            chats={chats}
+                            setChats={setChats}
+                            messages={messages}
+                            setMessages={setMessages}
+                            toggleSidebar={toggleSidebar}
+                        />
+                    </div>
                 </>
             )}
         </main>

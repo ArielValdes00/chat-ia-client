@@ -15,9 +15,20 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      maxHeight: {
+        'screen-minus-50': 'calc(100vh - 150px)',
+      },
     },
   },
   darkMode: "class",
-  plugins: [nextui()],
+  plugins: [nextui({
+    themes: {
+      light: { 
+        colors: {
+          danger: '#dc2626',
+        },
+      },
+    },
+  }),],
 };
 export default config;

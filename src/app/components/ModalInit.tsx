@@ -2,12 +2,17 @@ import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
 
-const ModalInit = () => {
-    const [isOpen, setIsOpen] = useState<boolean>(true);
+interface ModalInitProps {
+    openLoginModal?: boolean;
+    setOpenLoginModal?: React.Dispatch<boolean>;
+}
+const ModalInit: React.FC<ModalInitProps> = ({ openLoginModal, setOpenLoginModal }) => {
     const router = useRouter();
-    
+
     const toggleModal = () => {
-        setIsOpen(!isOpen);
+        if (setOpenLoginModal) {
+            setOpenLoginModal(!openLoginModal);
+        }
     }
 
     const login = () => {
@@ -15,7 +20,7 @@ const ModalInit = () => {
     }
 
     return (
-        <Modal isOpen={isOpen} onOpenChange={toggleModal}>
+        <Modal isOpen={openLoginModal} onOpenChange={toggleModal}>
             <ModalContent className='flex flex-col items-center justify-center'>
                 {(onClose) => (
                     <>

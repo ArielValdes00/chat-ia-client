@@ -6,44 +6,81 @@ import PromptCardIsLogged from './PromptCardIsLogged';
 import GeminiIcon from '../icons/GeminiIcon';
 import ChatMessages from './ChatMessages';
 import { generateAIResponse } from '../utils/GeminiConfig';
+import { addMessage, createChat } from '../service/chatService';
+import { IS_LOGGED_PROMPT_FOUR, IS_LOGGED_PROMPT_ONE, IS_LOGGED_PROMPT_THREE, IS_LOGGED_PROMPT_TWO, PROMPT_FOUR_FIRST_LINE, PROMPT_FOUR_SECOND_LINE, PROMPT_ONE_FIRST_LINE, PROMPT_ONE_SECOND_LINE, PROMPT_THREE_FIRST_LINE, PROMPT_THREE_SECOND_LINE, PROMPT_TWO_FIRST_LINE, PROMPT_TWO_SECOND_LINE } from '../utils/constants';
+import PencilIcon from '../icons/PencilIcon';
+import StudyIcon from '../icons/StudyIcon';
+import LightBulbIcon from '../icons/LightBulbIcon';
+import TravelIcon from '../icons/TravelIcon';
+import ToggleSidebarIcon from '../icons/ToggleSidebarIcon';
 
 interface ChatboxProps {
     isLogged: boolean;
     userData: any | undefined;
+    selectedChat: any;
+    setSelectedChat: React.Dispatch<any>;
+    setChats: React.Dispatch<any>;
+    setMessages: React.Dispatch<any>
+    messages: any;
+    chats: any;
+    toggleSidebar: () => void;
 }
 
-const Chatbox: React.FC<ChatboxProps> = ({ isLogged, userData }) => {
-    const [messages, setMessages] = useState<any>([]);
+const Chatbox: React.FC<ChatboxProps> = ({ isLogged, userData, selectedChat, setSelectedChat, setChats, messages, setMessages, chats, toggleSidebar }) => {
     const [isAILoading, setAILoading] = useState(false);
 
     const handleEnterClick = async (promptValue: string) => {
-        const newMessage: any = {
+        const userMessage = {
             content: promptValue,
             timestamp: new Date().toISOString(),
             sender: "user",
         };
-    
-        setMessages((messages: any) => [...messages, newMessage]);
-        setAILoading(true); 
-    
+        setMessages((prevMessages: any) => [...prevMessages, userMessage]);
+        setAILoading(true);
+
         try {
+            let currentChat = selectedChat;
+            if (!currentChat && isLogged) {
+                const chat = await createChat(userData[0]?.id);
+                currentChat = chat;
+                setSelectedChat(chat);
+                setChats((prevChats: any) => [...prevChats, { ...chat, messages: [userMessage] }]);
+            }
+
+            if (currentChat && currentChat.id) {
+                await addMessage(currentChat.id, userMessage.content, userMessage.sender);
+            }
+
             const aiResponse = await generateAIResponse(promptValue);
-            setMessages((messages: any) => [...messages, aiResponse]);
+
+            setMessages((prevMessages: any) => [...prevMessages, aiResponse]);
+            if (currentChat && currentChat.id) {
+                await addMessage(currentChat.id, aiResponse.content, aiResponse.sender);
+            }
         } catch (error) {
-            console.error("Error occurred while generating AI response:", error);
+            console.error("Error occurred while generating AI response or sending message to backend:", error);
         } finally {
-            setAILoading(false); 
+            setAILoading(false);
         }
     };
 
     return (
         <div className="flex flex-col w-full items-center pb-2 justify-between h-full bg-white">
-            <div className='h-16 px-5 w-full flex items-center justify-end'>
+            <div className='h-16 p-5 mt-1.5 w-full flex items-center justify-between'>
+                <span className='text-center cursor-pointer rounded-xl p-1 hover:bg-gray-200' onClick={toggleSidebar}>
+                    <ToggleSidebarIcon />
+                </span>
                 {isLogged && <Avatar size='sm' src={userData && userData[0]?.avatar} />}
             </div>
-            <div className={`${messages.length > 0 ? 'overflow-y-auto w-full h-full flex items-start justify-center my-4' : ''}`}>
-                {messages.length > 0
-                    ? <ChatMessages messages={messages} isAILoading={isAILoading} />
+            <div className={`${(messages?.length > 0 || (selectedChat && Object.keys(selectedChat).length > 0)) ? 'overflow-y-auto w-full h-full flex items-start justify-center' : ''}`}>
+                {(messages?.length > 0 || (selectedChat && Object.keys(selectedChat).length > 0))
+                    ? <ChatMessages
+                        chats={chats}
+                        messages={messages}
+                        isAILoading={isAILoading}
+                        selectedChat={selectedChat}
+                        isLogged={isLogged}
+                    />
                     : (
                         <>
                             <div className='flex flex-col gap-4 items-center'>
@@ -54,22 +91,26 @@ const Chatbox: React.FC<ChatboxProps> = ({ isLogged, userData }) => {
                                 />
                                 {!isLogged && <p className='font-semibold text-2xl mb-7'>¿Cómo puedo ayudarte hoy?</p>}
                                 {isLogged && (
-                                    <div className='grid grid-cols-2 md:grid-cols-4 gap-2 lg:gap-4 px-3 md:w-[590px] xl:w-[750px]'>
+                                    <div className='grid grid-cols-2 md:grid-cols-4 gap-2 lg:gap-4 px-3 md:w-[590px] xl:w-[700px]'>
                                         <PromptCardIsLogged
-                                            icon='p'
-                                            text='Actividades para hacer con amigos'
+                                            selectCard={handleEnterClick}
+                                            icon={<PencilIcon />}
+                                            text={IS_LOGGED_PROMPT_ONE}
                                         />
                                         <PromptCardIsLogged
-                                            icon='p'
-                                            text='Actividades para hacer con amigos'
+                                            selectCard={handleEnterClick}
+                                            icon={<StudyIcon />}
+                                            text={IS_LOGGED_PROMPT_TWO}
                                         />
                                         <PromptCardIsLogged
-                                            icon='p'
-                                            text='Actividades para hacer con amigos'
+                                            selectCard={handleEnterClick}
+                                            icon={<LightBulbIcon />}
+                                            text={IS_LOGGED_PROMPT_THREE}
                                         />
                                         <PromptCardIsLogged
-                                            icon='p'
-                                            text='Actividades para hacer con amigos'
+                                            selectCard={handleEnterClick}
+                                            icon={<TravelIcon />}
+                                            text={IS_LOGGED_PROMPT_FOUR}
                                         />
                                     </div>
                                 )}
@@ -78,20 +119,24 @@ const Chatbox: React.FC<ChatboxProps> = ({ isLogged, userData }) => {
                                 {!isLogged && (
                                     <div className='grid grid-cols-2 gap-2 w-full'>
                                         <PromptCard
-                                            firstLine='Crea un plan de entrenamiento'
-                                            secondLine='para entrenar la resistencia'
+                                            selectCard={handleEnterClick}
+                                            firstLine={PROMPT_ONE_FIRST_LINE}
+                                            secondLine={PROMPT_ONE_SECOND_LINE}
                                         />
                                         <PromptCard
-                                            firstLine='Diseña tu juego'
-                                            secondLine='para programar y aprender divirtiéndonos'
+                                            selectCard={handleEnterClick}
+                                            firstLine={PROMPT_TWO_FIRST_LINE}
+                                            secondLine={PROMPT_TWO_SECOND_LINE}
                                         />
                                         <PromptCard
-                                            firstLine='Cuéntame un dato curioso'
-                                            secondLine='sobre el Imperio Romano'
+                                            selectCard={handleEnterClick}
+                                            firstLine={PROMPT_THREE_FIRST_LINE}
+                                            secondLine={PROMPT_THREE_SECOND_LINE}
                                         />
                                         <PromptCard
-                                            firstLine='Planifica un viaje'
-                                            secondLine='para conocer Seúl como un local'
+                                            selectCard={handleEnterClick}
+                                            firstLine={PROMPT_FOUR_FIRST_LINE}
+                                            secondLine={PROMPT_FOUR_SECOND_LINE}
                                         />
                                     </div>
                                 )}
