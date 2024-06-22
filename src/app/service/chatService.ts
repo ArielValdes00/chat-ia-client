@@ -23,9 +23,9 @@ export const createChat = async (userId: number) => {
     }
 };
 
-export const addMessage = async (chatId: number, content: string, sender: string) => {
+export const addMessage = async (chatId: number, formData: any) => {
     try {
-        const res = await axios.post(`${API_URL}/chat/${chatId}/messages`, { content, sender }, {
+        const res = await axios.post(`${API_URL}/chat/${chatId}/messages`, formData, {
             headers: {
                 Authorization: `Bearer ${jwt}`
             },

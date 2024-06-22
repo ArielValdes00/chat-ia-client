@@ -1,83 +1,109 @@
-import { Avatar } from '@nextui-org/react';
-import React from 'react';
-import { formatText } from '../utils/validations';
+import { Avatar, Image } from '@nextui-org/react';
+import React, { useEffect, useRef } from 'react';
 
 interface ChatMessagesProp {
     messages: any;
     isAILoading: boolean;
     selectedChat: any;
     isLogged: boolean;
-    chats: any
+    chats: any;
 }
 
-const ChatMessages: React.FC<ChatMessagesProp> = ({ messages, isAILoading, selectedChat, isLogged,chats }) => {
+const ChatMessages: React.FC<ChatMessagesProp> = ({ messages, isAILoading, selectedChat, isLogged, chats }) => {
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            scrollToBottom();
+        }, 0);
+
+        return () => clearTimeout(timeout);
+    }, [messages, selectedChat]);
+
     const filteredChat = chats?.find((chat: any) => chat?.id === selectedChat?.id);
+
+    const renderMessageContent = (content: any) => {
+        if (!Array.isArray(content) || content.length !== 2) {
+            return { isImage: false, content: <p>{content}</p> };
+        }
+
+        const textContent = content[0];
+        const imageUrl = content[1];
+
+        if (imageUrl) {
+            return {
+                isImage: true,
+                content: (
+                    <>
+                        <Image src={imageUrl} alt="chat image" radius='sm' className='h-auto bg-white z-0 w-auto'/>
+                        {textContent && <p className='px-2 py-1 max-w-md text-start w-auto'>{textContent}</p>}
+                    </>
+                )
+            };
+        } else {
+            return {
+                isImage: false,
+                content: <p>{textContent}</p>
+            };
+        }
+    };
 
     const renderMessages = () => {
         if (isLogged && selectedChat && selectedChat.messages) {
-            return selectedChat?.messages?.map((msg: any, index: number) => (
-                <div
-                    key={index}
-                    className="clear-both my-4"
-                >
-                    <div className='flex items-start'>
-                        {msg.sender !== 'user' && <Avatar src='./avatarAi.png' className="float-left" />}
-                        <div
-                            className={`px-4 break-words py-2 ${msg.sender === 'user'
-                                ? 'bg-blue-500 text-white ml-auto text-end rounded-xl max-w-4/6'
-                                : 'float-left w-full'
-                                }`}
-                        >
-                            <div dangerouslySetInnerHTML={{ __html: formatText(msg.content) }} />
-                        </div>
-                    </div>
-                </div>
-            ));
-        } else {
-            return messages?.map((msg: any, index: number) => (
-                <div
-                    key={index}
-                    className="clear-both my-4"
-                >
-                    <div className='flex items-start'>
-                        {msg.sender !== 'user' && <Avatar src='./avatarAi.png' className="float-left" />}
-                        <div
-                            className={`px-4 break-words py-2 ${msg.sender === 'user'
-                                ? 'bg-blue-500 text-white ml-auto text-end rounded-xl max-w-4/6'
-                                : 'float-left w-full'
-                                }`}
-                        >
-                            <div dangerouslySetInnerHTML={{ __html: formatText(msg.content) }} />
-                        </div>
-                    </div>
-                </div>
-            ));
-        }
-    };
-    return (
-        <div className="w-full md:w-[610px] xl:w-[770px] px-4">
-            {selectedChat && selectedChat.messages ? renderMessages()
-                : (
-                    messages?.map((msg: any, index: number) => (
-                        <div
-                            key={index}
-                            className="clear-both my-4"
-                        >
-                            <div className='flex items-start'>
-                                {msg.sender !== 'user' && <Avatar src='./avatarAi.png' className="float-left" />}
-                                <div
-                                    className={`px-4 break-words py-2 ${msg.sender === 'user'
-                                        ? 'bg-blue-500 text-white ml-auto text-end rounded-xl max-w-4/6'
-                                        : 'float-left w-full'
-                                        }`}
-                                >
-                                    <div dangerouslySetInnerHTML={{ __html: formatText(msg.content) }} />
-                                </div>
+            return selectedChat?.messages?.map((msg: any, index: number) => {
+                const { isImage, content } = renderMessageContent(msg.content);
+                return (
+                    <div
+                        key={index}
+                        className="clear-both my-4"
+                    >
+                        <div className='flex items-start'>
+                            {msg.sender !== 'user' && <Avatar src='./avatarAi.png' className="float-left"/>}
+                            <div
+                                className={`break-words ${isImage ? 'p-[1.9px]' : 'px-4 py-2'} ${msg.sender === 'user'
+                                    ? 'bg-blue-500 text-white ml-auto text-end rounded-lg max-w-md'
+                                    : 'float-left w-full'
+                                    }`}
+                            >
+                                {content}
                             </div>
                         </div>
-                    ))
-                )}
-            <div className="clear-both" />
+                    </div>
+                );
+            });
+        } else {
+            return messages?.map((msg: any, index: number) => {
+                const { isImage, content } = renderMessageContent(msg.content);
+                return (
+                    <div
+                        key={index}
+                        className="clear-both my-4"
+                    >
+                        <div className='flex items-start'>
+                            {msg.sender !== 'user' && <Avatar src='./avatarAi.png' className="float-left" />}
+                            <div
+                                className={`break-words ${isImage ? 'p-1' : 'px-4 py-2'} ${msg.sender === 'user'
+                                    ? 'bg-blue-500 text-white ml-auto text-end rounded-xl max-w-4/6'
+                                    : 'float-left w-full'
+                                    }`}
+                            >
+                                {content}
+                            </div>
+                        </div>
+                    </div>
+                );
+            });
+        }
+    };
+
+    return (
+        <div className="w-full md:w-[610px] xl:w-[770px] px-4">
+            {renderMessages()}
+            <div ref={messagesEndRef} />
             {isAILoading && (
                 <div className='flex items-center gap-4 mt-4'>
                     <Avatar src='./avatarAi.png' />

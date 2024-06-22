@@ -40,7 +40,6 @@ export const formatDate = (dateString: string): string => {
     }
 };
 
-
 export const groupChatsByDate = (chats: Chat[]) => {
     return chats?.reduce((acc, chat) => {
         const dateLabel = formatDate(chat.createdAt);
@@ -50,4 +49,15 @@ export const groupChatsByDate = (chats: Chat[]) => {
         acc[dateLabel].push(chat);
         return acc;
     }, {} as Record<string, Chat[]>);
+};
+
+export const truncateText = (text: string, maxLength = 26) => {
+    if (text.length <= maxLength) {
+        return text;
+    }
+    return text.slice(0, maxLength) + "...";
+};
+
+export const capitalizeText = (text: string) => {
+    return text.charAt(0).toUpperCase() + text.slice(1);
 };

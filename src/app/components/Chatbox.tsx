@@ -20,7 +20,7 @@ interface ChatboxProps {
     selectedChat: any;
     setSelectedChat: React.Dispatch<any>;
     setChats: React.Dispatch<any>;
-    setMessages: React.Dispatch<any>
+    setMessages: React.Dispatch<any>;
     messages: any;
     chats: any;
     toggleSidebar: () => void;
@@ -29,12 +29,27 @@ interface ChatboxProps {
 const Chatbox: React.FC<ChatboxProps> = ({ isLogged, userData, selectedChat, setSelectedChat, setChats, messages, setMessages, chats, toggleSidebar }) => {
     const [isAILoading, setAILoading] = useState(false);
 
-    const handleEnterClick = async (promptValue: string) => {
+    const handleEnterClick = async (promptValue: string, image?: File | null) => {
+        let content: string | Array<string> = promptValue;
+
+        if (image) {
+            const imageUrl = URL.createObjectURL(image);
+            content = [promptValue, imageUrl];
+        }
+
+        const formData = new FormData();
+        formData.append('content', promptValue);
+        formData.append('sender', 'user');
+        if (image) {
+            formData.append('file', image);
+        }
+
         const userMessage = {
-            content: promptValue,
+            content,
             timestamp: new Date().toISOString(),
             sender: "user",
         };
+
         setMessages((prevMessages: any) => [...prevMessages, userMessage]);
         setAILoading(true);
 
@@ -48,14 +63,16 @@ const Chatbox: React.FC<ChatboxProps> = ({ isLogged, userData, selectedChat, set
             }
 
             if (currentChat && currentChat.id) {
-                await addMessage(currentChat.id, userMessage.content, userMessage.sender);
+                await addMessage(currentChat.id, formData);
             }
 
-            const aiResponse = await generateAIResponse(promptValue);
-
-            setMessages((prevMessages: any) => [...prevMessages, aiResponse]);
-            if (currentChat && currentChat.id) {
-                await addMessage(currentChat.id, aiResponse.content, aiResponse.sender);
+            if (promptValue.trim()) {
+                const aiResponse = await generateAIResponse(promptValue, image);
+                setMessages((prevMessages: any) => [...prevMessages, aiResponse]);
+                console.log("aiReponsde", aiResponse)
+                if (currentChat && currentChat.id) {
+                    await addMessage(currentChat.id, aiResponse);
+                }
             }
         } catch (error) {
             console.error("Error occurred while generating AI response or sending message to backend:", error);
@@ -74,13 +91,15 @@ const Chatbox: React.FC<ChatboxProps> = ({ isLogged, userData, selectedChat, set
             </div>
             <div className={`${(messages?.length > 0 || (selectedChat && Object.keys(selectedChat).length > 0)) ? 'overflow-y-auto w-full h-full flex items-start justify-center' : ''}`}>
                 {(messages?.length > 0 || (selectedChat && Object.keys(selectedChat).length > 0))
-                    ? <ChatMessages
-                        chats={chats}
-                        messages={messages}
-                        isAILoading={isAILoading}
-                        selectedChat={selectedChat}
-                        isLogged={isLogged}
-                    />
+                    ? <>
+                        <ChatMessages
+                            chats={chats}
+                            messages={messages}
+                            isAILoading={isAILoading}
+                            selectedChat={selectedChat}
+                            isLogged={isLogged}
+                        />
+                    </>
                     : (
                         <>
                             <div className='flex flex-col gap-4 items-center'>

@@ -8,7 +8,7 @@ import { deleteChats, getChats } from '../service/chatService';
 import DeleteIcon from '../icons/DeleteIcon';
 import { Chat } from '../types/types';
 import ModalDeleteChat from './ModalDeleteChat';
-import { groupChatsByDate } from '../utils/validations';
+import { capitalizeText, groupChatsByDate, truncateText } from '../utils/validations';
 import ModalInit from './ModalInit';
 
 interface SidebarProps {
@@ -46,7 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isLogged, setIsLogged, userData, setS
     }, []);
 
     const login = () => {
-        router.push("http://localhost:4000/auth/google");
+        router.push("https://chat-ia-server.onrender.com/auth/google");
     };
 
     const logout = () => {
@@ -91,10 +91,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isLogged, setIsLogged, userData, setS
                 chatToDelete={chatToDelete}
             />
             {openLoginModal && !isLogged &&
-            <ModalInit 
-            openLoginModal={openLoginModal}
-            setOpenLoginModal={setOpenLoginModal}
-            />}
+                <ModalInit
+                    openLoginModal={openLoginModal}
+                    setOpenLoginModal={setOpenLoginModal}
+                />}
             <div>
                 <div className='flex items-center justify-between hover:bg-gray-200 py-3 p-2 rounded-xl cursor-pointer' onClick={createNewChat}>
                     <div className='flex items-center gap-2'>
@@ -108,7 +108,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isLogged, setIsLogged, userData, setS
                     <NewChatIcon />
                 </div>
                 <div className='mt-2 overflow-y-auto max-h-screen-minus-50'>
-                    {isLogged && Object?.keys(groupedChats)?.map((dateLabel) => (
+                    {isLogged && Object?.keys(groupedChats)?.reverse().map((dateLabel) => (
                         <div key={dateLabel}>
                             <p className='text-gray-400 font-semibold px-3 my-2 text-xs'>{dateLabel}</p>
                             {groupedChats[dateLabel].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((chat: any) => (
@@ -119,7 +119,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isLogged, setIsLogged, userData, setS
                                     onMouseLeave={() => setHoveredIndex(-1)}
                                     onClick={() => setSelectedChat(chat)}
                                 >
-                                    <p>{chat?.messages[0]?.content || chat?.message?.content}</p>
+                                    <p>
+                                        {Array.isArray(chat?.messages[0]?.content)
+                                            ? capitalizeText(truncateText(chat?.messages[0]?.content[0]))
+                                            : capitalizeText(truncateText(chat?.messages[0]?.content || chat?.message?.content))}
+                                    </p>
                                     {hoveredIndex === chat.id && (
                                         <span onClick={(e) => { e.stopPropagation(); handleDeleteClick(chat); }}>
                                             <DeleteIcon />
