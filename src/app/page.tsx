@@ -72,7 +72,7 @@ export default function Home() {
         <main className="h-screen flex sm:px-0 relative">
             {loading && <Loading />}
             {!loading && isAuthChecked && !isLogged && <ModalInit />}
-            {!loading && isAuthChecked && (
+            {!loading && (
                 <>
                     <motion.aside
                         className={`sidebar ${isSidebarOpen ? 'block' : 'hidden'} lg:block bg-gray-100 lg:static absolute z-20 h-full`}

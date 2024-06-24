@@ -1,18 +1,36 @@
 import { Chat } from "../types/types";
 
-export function formatText(text: string) {
+export function formatText(text: string): string {
+    // Convertir encabezados ##
+    text = text.replace(/##\s*(.+)$/gm, '<strong>$1</strong>');
+
+    // Convertir **texto** en <strong>texto</strong>
     text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
-    text = text.replace(/^\* (.+)$/gm, '<li>$1</li>');
+    // Convertir * elemento en <li>elemento</li>
+    text = text.replace(/^\*\s*(.+)$/gm, '<li>$1</li>');
 
-    text = text.replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>');
+    // Envolver elementos de lista en <ul> si no están ya envueltos
+    text = text.replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>');
 
-    text = text.replace(/:/g, ':<br>');
+    // Agregar <br> después de los puntos y comas
+    text = text.replace(/:\s*/g, ':<br>');
 
-    text = text.replace(/-/g, '&nbsp;&nbsp;-');
+    // Convertir guiones en espacios no separables
+    text = text.replace(/-\s*/g, '&nbsp;&nbsp;- ');
+
+    // Envolver en párrafos si no están envueltos
+    text = text.split(/\n\s*\n/).map(paragraph => {
+        if (!paragraph.match(/<h3>|<ul>|<li>/)) {
+            return `<p>${paragraph}</p>`;
+        }
+        return paragraph;
+    }).join('');
 
     return text;
 }
+
+
 
 export const formatDate = (dateString: string): string => {
     const date = new Date(dateString);

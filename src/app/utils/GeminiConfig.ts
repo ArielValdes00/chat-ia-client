@@ -10,6 +10,7 @@ export const generateAIResponse = async (promptValue: string, file?: File | null
         const chatSession = await initializeChatSession(modelType);
         const result = await sendMessageToAI(chatSession, promptValue, file || null);
         const formattedResponse = result.response.text();
+        
         return {
             content: formattedResponse,
             timestamp: new Date().toISOString(),

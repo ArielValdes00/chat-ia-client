@@ -16,7 +16,7 @@ const ModalInit: React.FC<ModalInitProps> = ({ openLoginModal, setOpenLoginModal
     }
 
     const login = () => {
-        router.push("http://localhost:4000/auth/google");
+        router.push("https://chat-ia-server.onrender.com/auth/google");
     }
 
     return (

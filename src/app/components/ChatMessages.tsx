@@ -1,5 +1,6 @@
 import { Avatar, Image } from '@nextui-org/react';
 import React, { useEffect, useRef } from 'react';
+import { formatText } from '../utils/validations';
 
 interface ChatMessagesProp {
     messages: any;
@@ -28,7 +29,7 @@ const ChatMessages: React.FC<ChatMessagesProp> = ({ messages, isAILoading, selec
 
     const renderMessageContent = (content: any) => {
         if (!Array.isArray(content) || content.length !== 2) {
-            return { isImage: false, content: <p>{content}</p> };
+            return { isImage: false, content: <p className='leading-8' dangerouslySetInnerHTML={{ __html: formatText(content) }}></p> };
         }
 
         const textContent = content[0];
@@ -40,14 +41,14 @@ const ChatMessages: React.FC<ChatMessagesProp> = ({ messages, isAILoading, selec
                 content: (
                     <>
                         <Image src={imageUrl} alt="chat image" radius='sm' className='h-auto bg-white z-0 w-auto'/>
-                        {textContent && <p className='px-2 py-1 max-w-md text-start w-auto'>{textContent}</p>}
+                        {textContent && <p className='px-2 py-1 max-w-md text-start w-auto' dangerouslySetInnerHTML={{ __html: formatText(textContent) }}></p>}
                     </>
                 )
             };
         } else {
             return {
                 isImage: false,
-                content: <p>{textContent}</p>
+                content: <p dangerouslySetInnerHTML={{ __html: formatText(textContent) }}></p>
             };
         }
     };
