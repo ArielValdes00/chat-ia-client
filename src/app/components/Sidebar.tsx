@@ -43,7 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isLogged, setIsLogged, userData, setS
 
     useEffect(() => {
         getAllChats();
-    }, []);
+    }, [isLogged]);
 
     const login = () => {
         router.push(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/auth/google`);
@@ -108,7 +108,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isLogged, setIsLogged, userData, setS
                     <NewChatIcon />
                 </div>
                 <div className='mt-2 overflow-y-auto max-h-screen-minus-50'>
-                    {isLogged && Object?.keys(groupedChats)?.reverse().map((dateLabel) => (
+                    {isLogged && groupedChats && Object.keys(groupedChats)?.reverse().map((dateLabel) => (
                         <div key={dateLabel}>
                             <p className='text-gray-400 font-semibold px-3 my-2 text-xs'>{dateLabel}</p>
                             {groupedChats[dateLabel].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((chat: any) => (

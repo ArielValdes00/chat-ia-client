@@ -22,11 +22,10 @@ interface ChatboxProps {
     setChats: React.Dispatch<any>;
     setMessages: React.Dispatch<any>;
     messages: any;
-    chats: any;
     toggleSidebar: () => void;
 }
 
-const Chatbox: React.FC<ChatboxProps> = ({ isLogged, userData, selectedChat, setSelectedChat, setChats, messages, setMessages, chats, toggleSidebar }) => {
+const Chatbox: React.FC<ChatboxProps> = ({ isLogged, userData, selectedChat, setSelectedChat, setChats, messages, setMessages, toggleSidebar }) => {
     const [isAILoading, setAILoading] = useState(false);
 
     const handleEnterClick = async (promptValue: string, image?: File | null) => {
@@ -57,9 +56,10 @@ const Chatbox: React.FC<ChatboxProps> = ({ isLogged, userData, selectedChat, set
             let currentChat = selectedChat;
             if (!currentChat && isLogged) {
                 const chat = await createChat(userData[0]?.id);
+                console.log(chat)
                 currentChat = chat;
                 setSelectedChat(chat);
-                setChats((prevChats: any) => [...prevChats, { ...chat, messages: [userMessage] }]);
+                setChats((prevChats: any) => Array.isArray(prevChats) ? [...prevChats, { ...chat, messages: [userMessage] }] : [{ ...chat, messages: [userMessage] }]);
             }
 
             if (currentChat && currentChat.id) {
@@ -93,7 +93,6 @@ const Chatbox: React.FC<ChatboxProps> = ({ isLogged, userData, selectedChat, set
                 {(messages?.length > 0 || (selectedChat && Object.keys(selectedChat).length > 0))
                     ? <>
                         <ChatMessages
-                            chats={chats}
                             messages={messages}
                             isAILoading={isAILoading}
                             selectedChat={selectedChat}

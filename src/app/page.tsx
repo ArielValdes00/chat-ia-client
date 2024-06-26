@@ -58,8 +58,8 @@ export default function Home() {
                 setUserData(res);
                 setIsLogged(true);
             }
-            setIsAuthChecked(true);
             setLoading(false);
+            setIsAuthChecked(true);
         };
         getUserById();
     }, []);
@@ -72,7 +72,7 @@ export default function Home() {
         <main className="h-screen flex sm:px-0 relative">
             {loading && <Loading />}
             {!loading && isAuthChecked && !isLogged && <ModalInit />}
-            {!loading && (
+            {!loading && isAuthChecked && (
                 <>
                     <motion.aside
                         className={`sidebar ${isSidebarOpen ? 'block' : 'hidden'} lg:block bg-gray-100 lg:static absolute z-20 h-full`}
@@ -96,7 +96,6 @@ export default function Home() {
                             userData={userData}
                             selectedChat={selectedChat}
                             setSelectedChat={setSelectedChat}
-                            chats={chats}
                             setChats={setChats}
                             messages={messages}
                             setMessages={setMessages}

@@ -7,10 +7,9 @@ interface ChatMessagesProp {
     isAILoading: boolean;
     selectedChat: any;
     isLogged: boolean;
-    chats: any;
 }
 
-const ChatMessages: React.FC<ChatMessagesProp> = ({ messages, isAILoading, selectedChat, isLogged, chats }) => {
+const ChatMessages: React.FC<ChatMessagesProp> = ({ messages, isAILoading, selectedChat, isLogged }) => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
@@ -25,8 +24,6 @@ const ChatMessages: React.FC<ChatMessagesProp> = ({ messages, isAILoading, selec
         return () => clearTimeout(timeout);
     }, [messages, selectedChat]);
 
-    const filteredChat = chats?.find((chat: any) => chat?.id === selectedChat?.id);
-
     const renderMessageContent = (content: any) => {
         if (!Array.isArray(content) || content.length !== 2) {
             return { isImage: false, content: <p className='leading-8' dangerouslySetInnerHTML={{ __html: formatText(content) }}></p> };
@@ -39,10 +36,10 @@ const ChatMessages: React.FC<ChatMessagesProp> = ({ messages, isAILoading, selec
             return {
                 isImage: true,
                 content: (
-                    <>
+                    <div className='max-w-lg'>
                         <Image src={imageUrl} alt="chat image" radius='sm' className='h-auto bg-white z-0 w-auto'/>
                         {textContent && <p className='px-2 py-1 max-w-md text-start w-auto' dangerouslySetInnerHTML={{ __html: formatText(textContent) }}></p>}
-                    </>
+                    </div>
                 )
             };
         } else {

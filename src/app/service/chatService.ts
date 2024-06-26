@@ -43,6 +43,7 @@ export const addMessage = async (chatId: number, formData: any) => {
 };
 
 export const getChats = async (userId: number) => {
+    console.log(userId)
     try {
         const res = await axios.get(`${API_URL}/chat/${userId}`, {
             headers: {
