@@ -46,7 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isLogged, setIsLogged, userData, setS
     }, []);
 
     const login = () => {
-        router.push(process.env.NEXT_PUBLIC_BACKEND_URL!);
+        router.push(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/auth/google`);
     };
 
     const logout = () => {

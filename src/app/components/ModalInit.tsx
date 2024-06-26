@@ -16,7 +16,7 @@ const ModalInit: React.FC<ModalInitProps> = ({ openLoginModal, setOpenLoginModal
     }
 
     const login = () => {
-        router.push(process.env.NEXT_PUBLIC_BACKEND_URL!);
+        router.push(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/auth/google`);
     }
 
     return (
