@@ -5,8 +5,10 @@ import React from 'react'
 interface ModalInitProps {
     openLoginModal?: boolean;
     setOpenLoginModal?: React.Dispatch<boolean>;
+    isLoading?: boolean;
+    setIsLoading?: React.Dispatch<boolean>;
 }
-const ModalInit: React.FC<ModalInitProps> = ({ openLoginModal, setOpenLoginModal }) => {
+const ModalInit: React.FC<ModalInitProps> = ({ openLoginModal, setOpenLoginModal, isLoading,setIsLoading }) => {
     const router = useRouter();
 
     const toggleModal = () => {
@@ -16,6 +18,7 @@ const ModalInit: React.FC<ModalInitProps> = ({ openLoginModal, setOpenLoginModal
     }
 
     const login = () => {
+        setIsLoading!(true);
         router.push(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/auth/google`);
     }
 
@@ -32,8 +35,8 @@ const ModalInit: React.FC<ModalInitProps> = ({ openLoginModal, setOpenLoginModal
                                 Almacenamiento de tus chats para futuras referencias.</p>
                         </ModalBody>
                         <ModalFooter className='w-full flex flex-col items-center'>
-                            <Button fullWidth={true} color="primary" onPress={login}>
-                                Iniciar Sesión
+                            <Button fullWidth={true} color="primary" onPress={login} isLoading={isLoading}>
+                                {isLoading ? '' : 'Iniciar Sesión'}
                             </Button>
                             <button className='text-xs mt-1 text-gray-700 hover:underline' onClick={onClose}>
                                 Continuar como invitado

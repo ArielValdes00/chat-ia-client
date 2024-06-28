@@ -55,8 +55,7 @@ const Chatbox: React.FC<ChatboxProps> = ({ isLogged, userData, selectedChat, set
         try {
             let currentChat = selectedChat;
             if (!currentChat && isLogged) {
-                const chat = await createChat(userData[0]?.id);
-                console.log(chat)
+                const chat = await createChat(userData.id);
                 currentChat = chat;
                 setSelectedChat(chat);
                 setChats((prevChats: any) => Array.isArray(prevChats) ? [...prevChats, { ...chat, messages: [userMessage] }] : [{ ...chat, messages: [userMessage] }]);
@@ -69,13 +68,12 @@ const Chatbox: React.FC<ChatboxProps> = ({ isLogged, userData, selectedChat, set
             if (promptValue.trim()) {
                 const aiResponse = await generateAIResponse(promptValue, image);
                 setMessages((prevMessages: any) => [...prevMessages, aiResponse]);
-                console.log("aiReponsde", aiResponse)
                 if (currentChat && currentChat.id) {
                     await addMessage(currentChat.id, aiResponse);
                 }
             }
         } catch (error) {
-            console.error("Error occurred while generating AI response or sending message to backend:", error);
+            console.error(error);
         } finally {
             setAILoading(false);
         }
@@ -87,7 +85,7 @@ const Chatbox: React.FC<ChatboxProps> = ({ isLogged, userData, selectedChat, set
                 <span className='text-center cursor-pointer rounded-xl p-1 hover:bg-gray-200' onClick={toggleSidebar}>
                     <ToggleSidebarIcon />
                 </span>
-                {isLogged && <Avatar size='sm' src={userData && userData[0]?.avatar} />}
+                {isLogged && <Avatar size='sm' src={userData && userData.avatar} />}
             </div>
             <div className={`${(messages?.length > 0 || (selectedChat && Object.keys(selectedChat).length > 0)) ? 'overflow-y-auto w-full h-full flex items-start justify-center' : ''}`}>
                 {(messages?.length > 0 || (selectedChat && Object.keys(selectedChat).length > 0))

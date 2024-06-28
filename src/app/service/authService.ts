@@ -1,19 +1,14 @@
 import axios from "axios";
-import Cookies from 'js-cookie';
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-const jwt = Cookies.get('jwt');
 
 export const getUser = async () => {
     try {
-
         const res = await axios.get(`${API_URL}/user`, {
-            headers: {
-                Authorization: `Bearer ${jwt}`
-            }
+            withCredentials: true
         });
         return res.data;
-    } catch (error: unknown) {
+    } catch (error) {
         if (axios.isAxiosError(error)) {
             return error.response?.status;
         } else {
@@ -22,3 +17,28 @@ export const getUser = async () => {
     }
 };
 
+export const verifySession = async () => {
+    try {
+        const res = await axios.get(`${API_URL}/auth/verify`, {
+            withCredentials: true
+        });
+        return res.data;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            return error.response?.status;
+        } else {
+            console.error(error);
+        }
+    }
+};
+
+export const removeCookie = async () => {
+    try {
+        const res = await axios.get(`${API_URL}/auth/logout`, {
+            withCredentials: true
+        });
+        return res.data
+    } catch (error) {
+        console.error(error);
+    }
+};

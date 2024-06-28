@@ -3,13 +3,13 @@ import React, { useEffect, useState } from 'react';
 import NewChatIcon from '../icons/NewChatIcon';
 import GeminiIcon from '../icons/GeminiIcon';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
 import { deleteChats, getChats } from '../service/chatService';
 import DeleteIcon from '../icons/DeleteIcon';
 import { Chat } from '../types/types';
 import ModalDeleteChat from './ModalDeleteChat';
 import { capitalizeText, groupChatsByDate, truncateText } from '../utils/validations';
 import ModalInit from './ModalInit';
+import { removeCookie } from '../service/authService';
 
 interface SidebarProps {
     isLogged: boolean;
@@ -27,6 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isLogged, setIsLogged, userData, setS
     const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
     const [chatToDelete, setChatToDelete] = useState<Chat | null>(null);
     const [openLoginModal, setOpenLoginModal] = useState<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const createNewChat = () => {
         if (isLogged) {
@@ -37,25 +38,35 @@ const Sidebar: React.FC<SidebarProps> = ({ isLogged, setIsLogged, userData, setS
         }
     }
     const getAllChats = async () => {
-        const res = await getChats(userData[0]?.id);
+        const res = await getChats(userData?.id);
         setChats(res);
     };
 
     useEffect(() => {
         getAllChats();
-    }, [isLogged]);
+    }, [isLogged, userData]);
 
     const login = () => {
+        setIsLoading(true);
         router.push(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/auth/google`);
     };
 
-    const logout = () => {
-        Cookies.remove('jwt');
-        router.refresh();
-        router.replace('/');
-        setIsLogged(false);
-        setSelectedChat(null);
-        setChats(null);
+    const logout = async () => {
+        setIsLoading(true);
+        try {
+            const res = await removeCookie();
+            if (res) {
+                router.refresh();
+                router.replace('/');
+                setIsLogged(false);
+                setSelectedChat(null);
+                setChats(null);
+                setIsLoading(false);
+            }
+        } catch (error) {
+            console.error(error)
+            setIsLoading(false);
+        }
     };
 
     const handleDeleteClick = (chat: Chat) => {
@@ -92,6 +103,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isLogged, setIsLogged, userData, setS
             />
             {openLoginModal && !isLogged &&
                 <ModalInit
+                    setIsLoading={setIsLoading}
+                    isLoading={isLoading}
                     openLoginModal={openLoginModal}
                     setOpenLoginModal={setOpenLoginModal}
                 />}
@@ -139,10 +152,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isLogged, setIsLogged, userData, setS
                 <div className='flex flex-col gap-2'>
                     <p className='font-semibold'>Iniciar sesión</p>
                     <p className='text-gray-400 text-[12px]'>Obtén respuestas más inteligentes, carga archivos e imágenes, y más.</p>
-                    <Button size='sm' className='h-9 text-[13px] font-semibold' color='primary' onPress={login}>Iniciar sesión</Button>
+                    <Button size='sm' className='h-9 text-[13px] font-semibold' color='primary' isLoading={isLoading} onPress={login}>{isLoading ? '' : 'Iniciar Sesión'}</Button>
                 </div>
             ) : (
-                <Button size='sm' className='h-9 text-[13px] font-semibold text-white' color='danger' onClick={logout}>Cerrar Sesión</Button>
+                <Button size='sm' className='h-9 text-[13px] font-semibold text-white' color='danger' isLoading={isLoading} onClick={logout}>{isLoading ? '' : 'Cerrar Sesión'}</Button>
             )}
         </div>
     );

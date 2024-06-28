@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useEffect, useState } from "react";
 import Chatbox from "./components/Chatbox";
 import Sidebar from "./components/Sidebar";
-import { getUser } from "./service/authService";
+import { getUser, verifySession } from "./service/authService";
 import Loading from "./Loading";
 import ModalInit from './components/ModalInit';
 
@@ -49,20 +49,30 @@ export default function Home() {
         return () => window.removeEventListener('resize', handleResize);
     }, [loading]);
 
+
+    useEffect(() => {
+        const checkSession = async () => {
+            const result = await verifySession();
+            if (result?.session) {
+                setIsLogged(true);
+            } else {
+                setIsLogged(false);
+            }
+            setIsAuthChecked(true);
+        };
+        setLoading(false);
+        checkSession();
+    }, []);
+
     useEffect(() => {
         const getUserById = async () => {
             const res = await getUser();
-            if (res === undefined || (res >= 400)) {
-                setIsLogged(false);
-            } else {
-                setUserData(res);
-                setIsLogged(true);
+            if (res) {
+                setUserData(res[0]);
             }
-            setLoading(false);
-            setIsAuthChecked(true);
         };
         getUserById();
-    }, []);
+    }, [isLogged]);
 
     const toggleSidebar = () => {
         setIsSidebarOpen(prevState => !prevState);

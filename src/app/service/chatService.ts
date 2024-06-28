@@ -1,23 +1,18 @@
 import axios from "axios";
-import Cookies from 'js-cookie';
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-const jwt = Cookies.get('jwt');
 
 export const createChat = async (userId: number) => {
     try {
         const res = await axios.post(`${API_URL}/chat`, { userId }, {
-            headers: {
-                Authorization: `Bearer ${jwt}`
-            },
+            withCredentials: true,
         });
         return res.data;
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            console.error('Error response:', error.response);
             return error.response?.status;
         } else {
-            console.error('Unknown error:', error);
+            console.error(error);
             throw error;
         }
     }
@@ -26,9 +21,7 @@ export const createChat = async (userId: number) => {
 export const addMessage = async (chatId: number, formData: any) => {
     try {
         const res = await axios.post(`${API_URL}/chat/${chatId}/messages`, formData, {
-            headers: {
-                Authorization: `Bearer ${jwt}`
-            },
+            withCredentials: true
         });
         return res.data;
     } catch (error) {
@@ -36,35 +29,30 @@ export const addMessage = async (chatId: number, formData: any) => {
             console.error('Error response:', error.response);
             return error.response?.status;
         } else {
-            console.error('Unknown error:', error);
+            console.error(error);
             throw error;
         }
     }
 };
 
 export const getChats = async (userId: number) => {
-    console.log(userId)
     try {
         const res = await axios.get(`${API_URL}/chat/${userId}`, {
-            headers: {
-                Authorization: `Bearer ${jwt}`
-            },
+            withCredentials: true
         });
-        
+
         return res.data;
     } catch (error) {
-        console.log(error)
+        console.error(error)
     }
 };
 
 export const deleteChats = async (userId: number) => {
     try {
         const res = await axios.delete(`${API_URL}/chat/${userId}`, {
-            headers: {
-                Authorization: `Bearer ${jwt}`
-            },
+            withCredentials: true
         });
-        
+
         return res.data;
     } catch (error) {
         console.log(error)
