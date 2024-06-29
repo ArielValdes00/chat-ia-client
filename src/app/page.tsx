@@ -31,6 +31,7 @@ export default function Home() {
     const [selectedChat, setSelectedChat] = useState<any>(null);
     const [chats, setChats] = useState<any[]>([]);
     const [messages, setMessages] = useState<any>([]);
+    const [userId, setUserId] = useState<any>(null);
 
     useEffect(() => {
         const handleResize = () => {
@@ -55,6 +56,7 @@ export default function Home() {
             const result = await verifySession();
             if (result?.session) {
                 setIsLogged(true);
+                setUserId(result.user)
             } else {
                 setIsLogged(false);
             }
@@ -65,13 +67,15 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        const getUserById = async () => {
-            const res = await getUser();
-            if (res) {
-                setUserData(res[0]);
-            }
-        };
-        getUserById();
+        if (userId) {
+            const getUserById = async () => {
+                const res = await getUser(userId);
+                if (res) {
+                    setUserData(res);
+                }
+            };
+            getUserById();
+        }
     }, [isLogged]);
 
     const toggleSidebar = () => {

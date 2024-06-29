@@ -2,9 +2,9 @@ import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export const getUser = async () => {
+export const getUser = async (id: number) => {
     try {
-        const res = await axios.get(`${API_URL}/user`, {
+        const res = await axios.get(`${API_URL}/user/${id}`, {
             withCredentials: true
         });
         return res.data;
