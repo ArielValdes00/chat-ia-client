@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI, HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 import { ERROR_MESSAGE } from "./constants";
 
-const MODEL_PRO_VISION = "gemini-pro-vision";
+const MODEL_PRO_VISION = "gemini-1.5-flash";
 const MODEL_TEXT = "gemini-1.5-flash";
 
 export const generateAIResponse = async (promptValue: string, file?: File | null) => {
