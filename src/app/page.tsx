@@ -84,7 +84,6 @@ export default function Home() {
 
     return (
         <main className="h-screen flex sm:px-0 relative">
-            {loading && <Loading />}
             {!loading && isAuthChecked && !isLogged && <ModalInit />}
             {!loading && isAuthChecked && (
                 <>
